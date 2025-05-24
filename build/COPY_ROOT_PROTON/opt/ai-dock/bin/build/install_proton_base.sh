@@ -32,7 +32,7 @@ function install_proton_base() {
     # Install essential 32-bit libraries for gaming
     apt-get install -y --no-install-recommends \
         libgnutls30:i386 \
-        libldap-2.4-2:i386 \
+        libldap-2.5-0:i386 \
         libgpg-error0:i386 \
         libxml2:i386 \
         libasound2-plugins:i386 \
