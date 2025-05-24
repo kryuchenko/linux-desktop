@@ -14,6 +14,7 @@ jobs:
       - name: Clear cache
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             console.log("About to clear")
             const response = await github.rest.actions.getActionsCacheList({
