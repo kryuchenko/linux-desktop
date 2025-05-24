@@ -16,8 +16,9 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - {latest: "false", selkies: "1.6.2", proton: "false"}
-          - {latest: "false", selkies: "1.6.2", proton: "true"}
+          # CPU builds commented - only NVIDIA with Proton is built
+          #- {latest: "false", selkies: "1.6.2", proton: "false"}
+          #- {latest: "false", selkies: "1.6.2", proton: "true"}
     steps:
       -
         name: Free Space
@@ -101,7 +102,8 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime", proton: "false"}
+          # Only NVIDIA with Proton is enabled
+          #- {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime", proton: "false"}
           - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime", proton: "true"}
           # Devel builds commented due to size constraints
           #- {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-devel", proton: "false"}
@@ -187,7 +189,8 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "false"}
+          # AMD builds commented - only NVIDIA with Proton is built
+          #- {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "false"}
           # ROCm with Proton commented due to size constraints
           #- {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "true"}
     steps:
