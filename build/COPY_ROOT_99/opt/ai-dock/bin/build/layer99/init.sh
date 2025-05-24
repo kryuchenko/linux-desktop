@@ -63,14 +63,26 @@ exec "${PROTON_GE_HOME}/proton" "$@"
 EOF
 chmod +x /opt/ai-dock/bin/proton-ge
 
-# Install Protontricks and performance-critical gaming components
-echo "Installing Protontricks and gaming performance tools..."
-
-# Enable 32-bit architecture for better game compatibility
+# Install Steam
+echo "Installing Steam..."
+# Add multiverse repository for Steam
+add-apt-repository multiverse -y
 dpkg --add-architecture i386
 set +e
 apt-get update
 set -e
+
+# Install Steam and dependencies
+apt-get install --no-install-recommends -y \
+    steam-installer \
+    libgl1-mesa-dri:amd64 \
+    libgl1-mesa-dri:i386 \
+    libgl1-mesa-glx:amd64 \
+    libgl1-mesa-glx:i386 \
+    libc6:i386
+
+# Install Protontricks and performance-critical gaming components
+echo "Installing Protontricks and gaming performance tools..."
 
 apt-get install --no-install-recommends -y \
     python3-pip \
@@ -86,7 +98,9 @@ apt-get install --no-install-recommends -y \
     libgl1-mesa-glx:i386 \
     libgl1-mesa-dri:i386
 
-pip3 install protontricks
+# Install protontricks in system Python (needed for global access)
+# Using --break-system-packages as we're in a container environment
+pip3 install --break-system-packages protontricks
 
 # Configure GameMode for auto-optimization
 cat > /etc/gamemode.ini <<'EOF'
@@ -105,11 +119,26 @@ EOF
 if [ -f /usr/games/gamemoderun ]; then
     ln -sf /usr/games/gamemoderun /usr/local/bin/gamemoderun
 fi
-# Create wrapper for Protontricks to work with our Proton installation
+# Create wrapper for Protontricks to work with Steam and our Proton GE
 cat > /opt/ai-dock/bin/protontricks <<'EOF'
 #!/bin/bash
-export STEAM_DIR="/opt/proton-ge"
-export PROTON_VERSION="GE-Proton10-3"
+# Protontricks wrapper that works with Steam
+# First time Steam needs to be run to create directories
+if [ ! -d "$HOME/.steam" ]; then
+    echo "First time setup: Initializing Steam directories..."
+    steam -silent &
+    STEAM_PID=$!
+    sleep 10
+    kill $STEAM_PID 2>/dev/null || true
+fi
+
+# Set up Proton GE in Steam's compatibility tools
+COMPAT_TOOLS_DIR="$HOME/.steam/root/compatibilitytools.d"
+mkdir -p "$COMPAT_TOOLS_DIR"
+if [ ! -L "$COMPAT_TOOLS_DIR/GE-Proton10-3" ]; then
+    ln -sf /opt/proton-ge/GE-Proton10-3 "$COMPAT_TOOLS_DIR/GE-Proton10-3"
+fi
+
 exec /usr/local/bin/protontricks "$@"
 EOF
 chmod +x /opt/ai-dock/bin/protontricks
@@ -254,8 +283,7 @@ Icon=wine
 Exec=/opt/ai-dock/bin/proton-run %f
 EOF
 
-# Set proper ownership
-chown -R user:ai-dock /home/user/.config/mimeapps.list
+# Ownership will be fixed by fix-permissions.sh later
 
 cd /
 
@@ -322,9 +350,7 @@ StartupNotify=true
 EOF
 chmod +x /home/user/Desktop/directx-debugger.desktop
 
-# Set proper ownership
-chown -R user:ai-dock /home/user/Desktop/directx-args-debugger.exe
-chown -R user:ai-dock /home/user/Desktop/directx-debugger.desktop
+# Ownership will be fixed by fix-permissions.sh later
 
 fix-permissions.sh -o container
 
