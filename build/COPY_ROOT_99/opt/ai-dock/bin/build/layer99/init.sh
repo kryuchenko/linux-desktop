@@ -217,6 +217,46 @@ xdg-mime default proton-run.desktop application/x-exe
 xdg-mime default proton-run.desktop application/x-winexe
 xdg-mime default proton-run.desktop application/x-dosexec
 
+# Create KDE-specific mime associations for user
+mkdir -p /home/user/.config
+cat > /home/user/.config/mimeapps.list <<'EOF'
+[Default Applications]
+application/x-ms-dos-executable=proton-run.desktop
+application/x-msdos-program=proton-run.desktop
+application/x-msdownload=proton-run.desktop
+application/x-exe=proton-run.desktop
+application/x-winexe=proton-run.desktop
+application/x-dosexec=proton-run.desktop
+application/x-wine-extension-msp=proton-run.desktop
+
+[Added Associations]
+application/x-ms-dos-executable=proton-run.desktop;
+application/x-msdos-program=proton-run.desktop;
+application/x-msdownload=proton-run.desktop;
+application/x-exe=proton-run.desktop;
+application/x-winexe=proton-run.desktop;
+application/x-dosexec=proton-run.desktop;
+application/x-wine-extension-msp=proton-run.desktop;
+EOF
+
+# Create KDE service menu for right-click context
+mkdir -p /usr/share/kservices5/ServiceMenus
+cat > /usr/share/kservices5/ServiceMenus/proton-run.desktop <<'EOF'
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=application/x-ms-dos-executable;application/x-msdos-program;application/x-msdownload;application/x-exe;application/x-winexe;application/x-dosexec;
+Actions=RunWithProton;
+
+[Desktop Action RunWithProton]
+Name=Run with Proton
+Icon=wine
+Exec=/opt/ai-dock/bin/proton-run %f
+EOF
+
+# Set proper ownership
+chown -R user:ai-dock /home/user/.config/mimeapps.list
+
 cd /
 
 # Libre Office
