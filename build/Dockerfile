@@ -108,4 +108,5 @@ COPY --chown=0:1111 ./COPY_ROOT_99/ /
 RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init.sh | tee -a /var/log/build.log
 
 # Keep init.sh as-is and place additional logic in /opt/ai-dock/bin/preflight.sh
-CMD ["init.sh"]
+# Use entrypoint.sh for Vast.ai compatibility
+CMD ["/usr/local/bin/entrypoint.sh"]
