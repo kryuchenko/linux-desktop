@@ -35,7 +35,7 @@ jobs:
           echo "REPO_NAME=${REPO#*/}" >> ${GITHUB_ENV}
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Permissions fixes
         run: |
@@ -82,7 +82,7 @@ jobs:
           echo "TAGS=${TAGS}" >> ${GITHUB_ENV}
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: build
           build-args: |
@@ -118,7 +118,7 @@ jobs:
           echo "REPO_NAME=${REPO#*/}" >> ${GITHUB_ENV}
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Permissions fixes
         run: |
@@ -165,7 +165,7 @@ jobs:
           echo "TAGS=${TAGS}" >> ${GITHUB_ENV}
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: build
           build-args: |
@@ -199,7 +199,7 @@ jobs:
           echo "REPO_NAME=${REPO#*/}" >> ${GITHUB_ENV}
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Permissions fixes
         run: |
@@ -246,7 +246,7 @@ jobs:
           echo "TAGS=${TAGS}" >> ${GITHUB_ENV}
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: build
           build-args: |
