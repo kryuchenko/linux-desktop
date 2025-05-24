@@ -36,6 +36,14 @@ function start() {
     source /opt/ai-dock/etc/environment.sh
     
     rm -rf ~/.cache
+    
+    # Ensure required KDE files and directories exist
+    mkdir -p ~/.config ~/.local/share ~/.cache
+    touch ~/.config/startplasma-x11rc
+    if [ ! -f ~/.config/kdeglobals ]; then
+        echo "[General]" > ~/.config/kdeglobals
+    fi
+    mkdir -p ~/.config/autostart
   
     # Start KDE
     # Use VirtualGL to run the KDE desktop environment with OpenGL if the GPU is available, otherwise use OpenGL with llvmpipe
