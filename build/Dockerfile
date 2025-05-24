@@ -97,6 +97,7 @@ RUN if [ "${ENABLE_PROTON_GE}" = "true" ]; then \
     /opt/ai-dock/bin/build/install_proton_ge.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_python_deps.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_gaming_utils.sh | tee -a /var/log/build.log && \
+    /opt/ai-dock/bin/build/install_wine_components.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_steam.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/update-mime-database.sh | tee -a /var/log/build.log && \
     apt-get clean && \

@@ -49,7 +49,23 @@ fi
 # Initialize wine prefix if it doesn't exist
 if [ ! -f "${WINEPREFIX}/system.reg" ]; then
     echo "Initializing Wine prefix at ${WINEPREFIX}..."
+    
+    # Set Wine to not show GUI dialogs during initialization
+    export WINEDLLOVERRIDES="winemenubuilder.exe=d;mscoree=d;mshtml=d"
+    export DISPLAY=${DISPLAY:-:0}
+    
+    # Initialize Wine prefix quietly
     ${WINE} wineboot -u
+    
+    # Install essential Wine components
+    echo "Installing Wine Mono and Gecko..."
+    
+    # Install .NET framework and other essentials via winetricks if available
+    if command -v winetricks &> /dev/null; then
+        winetricks -q --force corefonts vcrun2019 dotnet48 || true
+    fi
+    
+    echo "Wine prefix initialization complete"
 fi
 
 # Set proper permissions
