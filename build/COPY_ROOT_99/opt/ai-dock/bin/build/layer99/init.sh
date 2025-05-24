@@ -162,12 +162,8 @@ EXE_NAME=$(basename "$EXE_PATH")
 
 # Set up Proton environment
 export STEAM_COMPAT_CLIENT_INSTALL_PATH="/opt/proton-ge/current"
-# Ensure we use the correct home directory for the current user
-if [ "$USER" = "root" ]; then
-    PROTON_PREFIX_DIR="/root/.proton-ge-prefixes"
-else
-    PROTON_PREFIX_DIR="${HOME:-/home/$USER}/.proton-ge-prefixes"
-fi
+# Always use root directory for simplicity
+PROTON_PREFIX_DIR="/root/.proton-ge-prefixes"
 export STEAM_COMPAT_DATA_PATH="$PROTON_PREFIX_DIR/$(echo "$EXE_PATH" | md5sum | cut -d' ' -f1)"
 export PROTON_USE_WINED3D=0
 export PROTON_NO_ESYNC=0
@@ -247,11 +243,11 @@ xdg-mime default proton-run.desktop application/x-exe
 xdg-mime default proton-run.desktop application/x-winexe
 xdg-mime default proton-run.desktop application/x-dosexec
 
-# Create KDE-specific mime associations for user
-mkdir -p /home/user/.config
+# Create KDE-specific mime associations for root
+mkdir -p /root/.config
 # Create required KDE startup file to prevent "not writable" error
-touch /home/user/.config/startplasma-x11rc
-cat > /home/user/.config/mimeapps.list <<'EOF'
+touch /root/.config/startplasma-x11rc
+cat > /root/.config/mimeapps.list <<'EOF'
 [Default Applications]
 application/x-ms-dos-executable=proton-run.desktop
 application/x-msdos-program=proton-run.desktop
@@ -287,12 +283,12 @@ Exec=/opt/ai-dock/bin/proton-run %f
 EOF
 
 # Create additional KDE directories and files to prevent startup issues
-mkdir -p /home/user/.local/share/kwalletd
-mkdir -p /home/user/.kde/share/config
-mkdir -p /home/user/.cache/plasma
+mkdir -p /root/.local/share/kwalletd
+mkdir -p /root/.kde/share/config
+mkdir -p /root/.cache/plasma
 # Ensure .config directory structure exists
-mkdir -p /home/user/.config/kde.org
-mkdir -p /home/user/.config/plasma-workspace
+mkdir -p /root/.config/kde.org
+mkdir -p /root/.config/plasma-workspace
 
 # Ownership will be fixed by fix-permissions.sh later
 
@@ -342,33 +338,33 @@ apt-get clean -y
 
 # Download DirectX Args Debugger to Desktop for testing
 echo "Setting up DirectX test application..."
-mkdir -p /home/user/Desktop
-cd /home/user/Desktop
+mkdir -p /root/Desktop
+cd /root/Desktop
 wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe
 chmod +x directx-args-debugger.exe
 
 # Create desktop launcher
-cat > /home/user/Desktop/directx-debugger.desktop <<'EOF'
+cat > /root/Desktop/directx-debugger.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
 Name=DirectX Args Debugger
 Comment=Test DirectX arguments with Proton
-Exec=/opt/ai-dock/bin/proton-run /home/user/Desktop/directx-args-debugger.exe
+Exec=/opt/ai-dock/bin/proton-run /root/Desktop/directx-args-debugger.exe
 Icon=wine
 Terminal=true
 Categories=Game;
 StartupNotify=true
 EOF
-chmod +x /home/user/Desktop/directx-debugger.desktop
+chmod +x /root/Desktop/directx-debugger.desktop
 
 # Mark desktop files as trusted for KDE Plasma 5
 # This prevents "for security reasons" error when clicking executables
-gio set /home/user/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
-gio set /home/user/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
+gio set /root/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
+gio set /root/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
 
 # Create KDE config to allow desktop executables
-mkdir -p /home/user/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
-cat > /home/user/.config/kdesktoprc <<'EOF'
+mkdir -p /root/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
+cat > /root/.config/kdesktoprc <<'EOF'
 [Desktop Settings]
 AllowDesktopExecutables=true
 EOF

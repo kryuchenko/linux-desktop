@@ -38,12 +38,14 @@ function start() {
     rm -rf ~/.cache
     
     # Ensure required KDE files and directories exist
-    mkdir -p ~/.config ~/.local/share ~/.cache
-    touch ~/.config/startplasma-x11rc
-    if [ ! -f ~/.config/kdeglobals ]; then
-        echo "[General]" > ~/.config/kdeglobals
+    mkdir -p /root/.config /root/.local/share /root/.cache
+    touch /root/.config/startplasma-x11rc
+    if [ ! -f /root/.config/kdeglobals ]; then
+        echo "[General]" > /root/.config/kdeglobals
     fi
-    mkdir -p ~/.config/autostart
+    mkdir -p /root/.config/autostart
+    # Fix permissions for root
+    chmod -R 755 /root/.config
   
     # Start KDE
     # Use VirtualGL to run the KDE desktop environment with OpenGL if the GPU is available, otherwise use OpenGL with llvmpipe
