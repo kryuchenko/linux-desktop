@@ -261,6 +261,31 @@ cp -f /opt/ai-dock/share/google-chrome/bin/google-chrome /opt/google/chrome/goog
 
 apt-get clean -y
 
+# Download DirectX Args Debugger to Desktop for testing
+echo "Setting up DirectX test application..."
+mkdir -p /home/user/Desktop
+cd /home/user/Desktop
+wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe
+chmod +x directx-args-debugger.exe
+
+# Create desktop launcher
+cat > /home/user/Desktop/directx-debugger.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=DirectX Args Debugger
+Comment=Test DirectX arguments with Proton
+Exec=/opt/ai-dock/bin/proton-run /home/user/Desktop/directx-args-debugger.exe
+Icon=wine
+Terminal=true
+Categories=Game;
+StartupNotify=true
+EOF
+chmod +x /home/user/Desktop/directx-debugger.desktop
+
+# Set proper ownership
+chown -R user:ai-dock /home/user/Desktop/directx-args-debugger.exe
+chown -R user:ai-dock /home/user/Desktop/directx-debugger.desktop
+
 fix-permissions.sh -o container
 
 # Create entrypoint.sh symlink for vast.ai compatibility
