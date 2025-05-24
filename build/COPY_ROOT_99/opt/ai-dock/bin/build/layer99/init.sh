@@ -99,8 +99,9 @@ apt-get install --no-install-recommends -y \
     libgl1-mesa-dri:i386
 
 # Install protontricks in system Python (needed for global access)
-# Using --break-system-packages as we're in a container environment
-pip3 install --break-system-packages protontricks
+# For Ubuntu 22.04, we need to use different approach
+export PIP_BREAK_SYSTEM_PACKAGES=1
+pip3 install protontricks
 
 # Configure GameMode for auto-optimization
 cat > /etc/gamemode.ini <<'EOF'
