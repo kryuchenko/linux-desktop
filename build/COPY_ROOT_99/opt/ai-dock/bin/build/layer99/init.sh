@@ -249,6 +249,8 @@ xdg-mime default proton-run.desktop application/x-dosexec
 
 # Create KDE-specific mime associations for user
 mkdir -p /home/user/.config
+# Create required KDE startup file to prevent "not writable" error
+touch /home/user/.config/startplasma-x11rc
 cat > /home/user/.config/mimeapps.list <<'EOF'
 [Default Applications]
 application/x-ms-dos-executable=proton-run.desktop
@@ -283,6 +285,14 @@ Name=Run with Proton
 Icon=wine
 Exec=/opt/ai-dock/bin/proton-run %f
 EOF
+
+# Create additional KDE directories and files to prevent startup issues
+mkdir -p /home/user/.local/share/kwalletd
+mkdir -p /home/user/.kde/share/config
+mkdir -p /home/user/.cache/plasma
+# Ensure .config directory structure exists
+mkdir -p /home/user/.config/kde.org
+mkdir -p /home/user/.config/plasma-workspace
 
 # Ownership will be fixed by fix-permissions.sh later
 
