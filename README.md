@@ -1,8 +1,36 @@
-[![Docker Build](https://github.com/ai-dock/linux-desktop/actions/workflows/docker-build.yml/badge.svg)](https://github.com/ai-dock/linux-desktop/actions/workflows/docker-build.yml)
+[![Docker Build](https://github.com/kryuchenko/linux-desktop/actions/workflows/docker-build.yml/badge.svg)](https://github.com/kryuchenko/linux-desktop/actions/workflows/docker-build.yml)
 
-# Linux Desktop
+# Linux Desktop with Gaming Stack
 
-Run a hardware accelerated KDE desktop in a container. This image is heavily influenced by [Selkies Project](https://github.com/selkies-project) to provide an accelerated desktop environment for NVIDIA, AMD and Intel machines.  
+Run a hardware accelerated KDE desktop with comprehensive gaming support in a container. This is a fork of [ai-dock/linux-desktop](https://github.com/ai-dock/linux-desktop) enhanced with gaming and creative tools.
+
+## Features
+
+This image extends the base ai-dock/linux-desktop with:
+
+### Gaming Components
+- **Wine (Staging)** - Windows compatibility layer
+- **Lutris** - Game launcher and manager
+- **Proton GE 10-3** - Custom Proton build for enhanced game compatibility
+- **Protontricks** - Tool for managing Proton prefixes
+- **GameMode** - Automatic performance optimization for games
+- **MangoHud** - Vulkan/OpenGL overlay for monitoring performance
+- **Vulkan drivers** - Full 32-bit and 64-bit support
+
+### Creative & Productivity Tools
+- **LibreOffice** - Full office suite with KDE integration
+- **Blender 4.2.0** - 3D creation suite
+- **Krita 5.2.3** - Digital painting application
+- **GIMP** - Image manipulation program
+- **Inkscape** - Vector graphics editor
+- **Google Chrome** - Web browser
+
+### Custom Scripts
+- `proton-run` - Easy execution of Windows .exe files
+- `proton-ge` - Proton GE wrapper
+- `protontricks` - Protontricks wrapper
+
+This image is based on [Selkies Project](https://github.com/selkies-project) to provide an accelerated desktop environment for NVIDIA, AMD and Intel machines.  
 
 Please see this [important notice](#selkies-notice) from the Selkies development team.
 
@@ -37,12 +65,54 @@ ROCm builds are experimental. Please give feedback.
 
 - `:latest-cpu` &rarr; `:cpu-22.04`
 
-Browse [here](https://github.com/ai-dock/linux-desktop/pkgs/container/linux-desktop) for an image suitable for your target environment. 
+Browse [here](https://github.com/kryuchenko/linux-desktop/pkgs/container/linux-desktop) for an image suitable for your target environment. 
+
+Images are also available on Docker Hub at [kryuchenko/linux-desktop](https://hub.docker.com/r/kryuchenko/linux-desktop). 
 
 Supported Desktop Environments: `KDE Plasma`
 
 Supported Platforms: `NVIDIA CUDA`, `AMD ROCm`, `CPU/iGPU`
 
+
+## Quick Start
+
+### Docker Run
+```bash
+# For NVIDIA GPUs
+docker run -it --gpus all \
+  -p 6100:6100 \
+  -p 1111:1111 \
+  -e WEB_USER=user \
+  -e WEB_PASSWORD=password \
+  kryuchenko/linux-desktop:latest-cuda
+
+# For AMD GPUs
+docker run -it --device /dev/kfd --device /dev/dri \
+  -p 6100:6100 \
+  -p 1111:1111 \
+  -e WEB_USER=user \
+  -e WEB_PASSWORD=password \
+  kryuchenko/linux-desktop:latest-rocm
+
+# For CPU/iGPU
+docker run -it \
+  -p 6100:6100 \
+  -p 1111:1111 \
+  -e WEB_USER=user \
+  -e WEB_PASSWORD=password \
+  kryuchenko/linux-desktop:latest-cpu
+```
+
+Access the desktop at: `http://localhost:6100`
+
+### Running Windows Games
+```bash
+# Inside the container, use proton-run to execute .exe files
+proton-run /path/to/game.exe
+
+# Or use Lutris GUI for game management
+lutris
+```
 
 ## Pre-Configured Templates
 

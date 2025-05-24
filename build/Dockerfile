@@ -1,4 +1,4 @@
-# For build automation - Allows building from any ai-dock base image
+# For build automation - Using ai-dock base image
 ARG IMAGE_BASE="ghcr.io/ai-dock/base-image:v2-cuda-12.1.1-cudnn8-runtime-22.04"
 FROM ${IMAGE_BASE}
 
@@ -44,7 +44,7 @@ ENV DISPLAY_REFRESH 60
 ENV DISPLAY_DPI 96
 ENV DISPLAY_CDEPTH 24
 
-ARG SELKIES_VERSION=1.6.1
+ARG SELKIES_VERSION=1.6.2
 ENV SELKIES_VERSION=${SELKIES_VERSION}
 ENV SELKIES_ENCODER nvh264enc
 ENV SELKIES_ENABLE_RESIZE false

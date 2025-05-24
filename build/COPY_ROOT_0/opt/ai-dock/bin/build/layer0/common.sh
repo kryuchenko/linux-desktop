@@ -4,7 +4,7 @@ source /opt/ai-dock/etc/environment.sh
 
 build_common_main() {
     add-apt-repository multiverse
-    apt-get update
+    apt-get update || true
     build_common_install_xorg
     build_common_install_pipewire
     build_common_install_virtualgl
@@ -148,7 +148,7 @@ function build_common_install_pipewire() {
     echo "deb https://ppa.launchpadcontent.net/pipewire-debian/wireplumber-upstream/ubuntu ${codename} main" \
         > "/etc/apt/sources.list.d/pipewire-debian-ubuntu-wireplumber-upstream-${codename}.list"
 
-    apt-get update
+    apt-get update || true
     $APT_INSTALL \
         pipewire \
         pipewire-alsa \
@@ -334,7 +334,7 @@ function build_common_install_kde() {
 function build_common_install_packages() {
     mkdir -pm755 /etc/apt/trusted.gpg.d && curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x0AB215679C571D1C8325275B9BDB3D89CE49EC21" | gpg --dearmor -o /etc/apt/trusted.gpg.d/mozillateam-ubuntu-ppa.gpg && \
     mkdir -pm755 /etc/apt/sources.list.d && echo "deb https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu $(grep UBUNTU_CODENAME= /etc/os-release | cut -d= -f2 | tr -d '\"') main" > "/etc/apt/sources.list.d/mozillateam-ubuntu-ppa-$(grep UBUNTU_CODENAME= /etc/os-release | cut -d= -f2 | tr -d '\"').list" && \
-    apt-get update
+    apt-get update || true
 
     $APT_INSTALL \
         firefox \
