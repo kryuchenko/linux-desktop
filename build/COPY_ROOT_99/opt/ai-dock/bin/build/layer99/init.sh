@@ -101,7 +101,8 @@ apt-get install --no-install-recommends -y \
 # Install protontricks in system Python (needed for global access)
 # For Ubuntu 22.04, we need to use different approach
 export PIP_BREAK_SYSTEM_PACKAGES=1
-pip3 install protontricks
+# Install with websockets version constraint for selkies-gstreamer 1.6.2 compatibility
+pip3 install protontricks 'websockets<14.0'
 
 # Configure GameMode for auto-optimization
 cat > /etc/gamemode.ini <<'EOF'
