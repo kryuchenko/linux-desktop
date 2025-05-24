@@ -436,6 +436,8 @@ function build_common_install_selkies() {
     cd /tmp 
     curl -O -fsSL "https://github.com/selkies-project/selkies-gstreamer/releases/download/v${SELKIES_VERSION}/selkies_gstreamer-${SELKIES_VERSION}-py3-none-any.whl" 
     "$SELKIES_VENV_PIP" install --no-cache-dir --force-reinstall "selkies_gstreamer-${SELKIES_VERSION}-py3-none-any.whl"
+    # Fix websockets compatibility for selkies-gstreamer 1.6.2
+    "$SELKIES_VENV_PIP" install --no-cache-dir --force-reinstall 'websockets<14.0'
 
     curl -o selkies-js-interposer.deb -fsSL "https://github.com/selkies-project/selkies-gstreamer/releases/download/v${SELKIES_VERSION}/selkies-js-interposer_v${SELKIES_VERSION}_ubuntu$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '\"')_$(dpkg --print-architecture).deb"
     $APT_INSTALL ./selkies-js-interposer.deb
