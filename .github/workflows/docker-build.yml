@@ -16,7 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - {latest: "false", selkies: "1.6.2"}
+          - {latest: "false", selkies: "1.6.2", proton: "false"}
+          - {latest: "false", selkies: "1.6.2", proton: "true"}
     steps:
       -
         name: Free Space
@@ -58,7 +59,7 @@ jobs:
         name: Set tags
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
-          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cpu"
+          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cpu$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
           
           if [[ -z ${{ matrix.build.selkies }} || ${{ matrix.build.selkies }} == "latest"  ]]; then
               SELKIES_VERSION="$(curl -fsSL "https://api.github.com/repos/selkies-project/selkies-gstreamer/releases/latest" | jq -r '.tag_name' | sed 's/[^0-9\.\-]*//g')"
@@ -68,12 +69,12 @@ jobs:
           [[ -n $SELKIES_VERSION ]] || { echo "Error: SELKIES_VERSION is empty. Exiting script." >&2; exit 1; }
           echo "SELKIES_VERSION=${SELKIES_VERSION}" >> ${GITHUB_ENV}
 
-          base_tag="v2-cpu-${{ env.UBUNTU_VERSION }}"
+          base_tag="v2-cpu-${{ env.UBUNTU_VERSION }}$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
 
           if [[ ${{ matrix.build.latest }} == "true" ]]; then
                 echo "Marking latest"
                 # GHCR.io Tags
-                TAGS="${img_path_ghcr}:${base_tag}, ${base_tag}-v${SELKIES_VERSION}, ${img_path_ghcr}:latest-cpu"
+                TAGS="${img_path_ghcr}:${base_tag}, ${img_path_ghcr}:${base_tag}-v${SELKIES_VERSION}, ${img_path_ghcr}:latest-cpu$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
                 # Docker.io Tags
                 TAGS="${TAGS}, ${img_path_dhub}:${SELKIES_VERSION}-ubuntu-${{ env.UBUNTU_VERSION }}, ${img_path_dhub}:latest"
             else
@@ -87,6 +88,8 @@ jobs:
           context: build
           build-args: |
             IMAGE_BASE=ghcr.io/ai-dock/base-image:v2-cpu-${{ env.UBUNTU_VERSION }}
+            ENABLE_PROTON_GE=${{ matrix.build.proton }}
+            SELKIES_VERSION=${{ env.SELKIES_VERSION }}
           push: true
           # Avoids unknown/unknown architecture and extra metadata
           provenance: false
@@ -98,8 +101,10 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime"}
-          - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-devel"}
+          - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime", proton: "false"}
+          - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime", proton: "true"}
+          # Devel builds commented due to size constraints
+          #- {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-devel", proton: "false"}
     steps:
       -
         name: Free Space
@@ -141,7 +146,7 @@ jobs:
         name: Set tags
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
-          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cuda"
+          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cuda$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
           
           if [[ -z ${{ matrix.build.selkies }} || ${{ matrix.build.selkies }} == "latest"  ]]; then
               SELKIES_VERSION="$(curl -fsSL "https://api.github.com/repos/selkies-project/selkies-gstreamer/releases/latest" | jq -r '.tag_name' | sed 's/[^0-9\.\-]*//g')"
@@ -151,12 +156,12 @@ jobs:
           [[ -n $SELKIES_VERSION ]] || { echo "Error: SELKIES_VERSION is empty. Exiting script." >&2; exit 1; }
           echo "SELKIES_VERSION=${SELKIES_VERSION}" >> ${GITHUB_ENV}
           
-          base_tag="v2-cuda-${{ matrix.build.cuda }}-${{ env.UBUNTU_VERSION }}"
+          base_tag="v2-cuda-${{ matrix.build.cuda }}-${{ env.UBUNTU_VERSION }}$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
 
           if [[ ${{ matrix.build.latest }} == "true" ]]; then
                 echo "Marking latest"
                 # GHCR.io Tags
-                TAGS="${img_path_ghcr}:${base_tag}, ${img_path_ghcr}:${base_tag}-v${SELKIES_VERSION}, ${img_path_ghcr}:latest, ${img_path_ghcr}:latest-cuda"
+                TAGS="${img_path_ghcr}:${base_tag}, ${img_path_ghcr}:${base_tag}-v${SELKIES_VERSION}, ${img_path_ghcr}:latest$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo ""), ${img_path_ghcr}:latest-cuda$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
                 # Docker.io Tags
                 TAGS="${TAGS}, ${img_path_dhub}:v${SELKIES_VERSION}-${{ matrix.build.cuda }}, ${img_path_dhub}:latest"
             else
@@ -170,6 +175,8 @@ jobs:
           context: build
           build-args: |
             IMAGE_BASE=ghcr.io/ai-dock/base-image:v2-cuda-${{ matrix.build.cuda }}-${{ env.UBUNTU_VERSION }}
+            ENABLE_PROTON_GE=${{ matrix.build.proton }}
+            SELKIES_VERSION=${{ env.SELKIES_VERSION }}
           push: true
           provenance: false
           tags: ${{ env.TAGS }}
@@ -180,7 +187,9 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime"}
+          - {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "false"}
+          # ROCm with Proton commented due to size constraints
+          #- {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "true"}
     steps:
       -
         name: Free Space
@@ -222,7 +231,7 @@ jobs:
         name: Set tags
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
-          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-rocm"
+          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-rocm$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
           
           if [[ -z ${{ matrix.build.selkies }} || ${{ matrix.build.selkies }} == "latest"  ]]; then
               SELKIES_VERSION="$(curl -fsSL "https://api.github.com/repos/selkies-project/selkies-gstreamer/releases/latest" | jq -r '.tag_name' | sed 's/[^0-9\.\-]*//g')"
@@ -232,12 +241,12 @@ jobs:
           [[ -n $SELKIES_VERSION ]] || { echo "Error: SELKIES_VERSION is empty. Exiting script." >&2; exit 1; }
           echo "SELKIES_VERSION=${SELKIES_VERSION}" >> ${GITHUB_ENV}
 
-          base_tag="v2-cuda-${{ matrix.build.rocm }}-${{ env.UBUNTU_VERSION }}"
+          base_tag="v2-rocm-${{ matrix.build.rocm }}-${{ env.UBUNTU_VERSION }}$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
 
           if [[ ${{ matrix.build.latest }} == "true" ]]; then
                 echo "Marking latest"
                 # GHCR.io Tags
-                TAGS="${img_path_ghcr}:${base_tag}, ${img_path_ghcr}:${base_tag}-v${SELKIES_VERSION}, ${img_path_ghcr}:latest-rocm"
+                TAGS="${img_path_ghcr}:${base_tag}, ${img_path_ghcr}:${base_tag}-v${SELKIES_VERSION}, ${img_path_ghcr}:latest-rocm$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
                 # Docker.io Tags
                 TAGS="${TAGS}, ${img_path_dhub}:v${SELKIES_VERSION}-${{ matrix.build.rocm }}, ${img_path_dhub}:latest"
             else
@@ -251,6 +260,8 @@ jobs:
           context: build
           build-args: |
             IMAGE_BASE=ghcr.io/ai-dock/base-image:v2-rocm-${{ matrix.build.rocm }}-${{ env.UBUNTU_VERSION }}
+            ENABLE_PROTON_GE=${{ matrix.build.proton }}
+            SELKIES_VERSION=${{ env.SELKIES_VERSION }}
           push: true
           provenance: false
           tags: ${{ env.TAGS }}

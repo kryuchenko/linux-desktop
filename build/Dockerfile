@@ -44,7 +44,7 @@ ENV DISPLAY_REFRESH 60
 ENV DISPLAY_DPI 96
 ENV DISPLAY_CDEPTH 24
 
-ARG SELKIES_VERSION=1.6.1
+ARG SELKIES_VERSION=1.6.2
 ENV SELKIES_VERSION=${SELKIES_VERSION}
 ENV SELKIES_ENCODER nvh264enc
 ENV SELKIES_ENABLE_RESIZE false
@@ -70,6 +70,13 @@ ENV APPIMAGE_EXTRACT_AND_RUN 1
 ARG WINE_BRANCH=staging
 ENV WINE_BRANCH=${WINE_BRANCH}
 
+# Proton GE environment variables
+ARG ENABLE_PROTON_GE=true
+ENV ENABLE_PROTON_GE=${ENABLE_PROTON_GE}
+ENV PROTON_VERSION=GE-Proton10-3
+ENV ENABLE_GAMEMODE=false
+ENV ENABLE_MANGOHUD=true
+
 # Copy early so we can use scripts in the build - Changes to these files will invalidate the cache and cause a rebuild.
 COPY --chown=0:1111 ./COPY_ROOT_0/ /
 
@@ -80,6 +87,18 @@ ENV IMAGE_SLUG="linux-desktop"
 # Don't put anything heavy in here - We can use multi-stage building above if necessary.
 
 RUN set -eo pipefail && /opt/ai-dock/bin/build/layer0/init.sh | tee /var/log/build.log
+
+# Proton GE Layer - only installed if ENABLE_PROTON_GE is true
+COPY --chown=0:1111 ./COPY_ROOT_PROTON/ /
+RUN if [ "${ENABLE_PROTON_GE}" = "true" ]; then \
+    set -eo pipefail && \
+    /opt/ai-dock/bin/build/install_proton_base.sh | tee -a /var/log/build.log && \
+    /opt/ai-dock/bin/build/install_proton_ge.sh | tee -a /var/log/build.log && \
+    /opt/ai-dock/bin/build/install_python_deps.sh | tee -a /var/log/build.log && \
+    /opt/ai-dock/bin/build/install_gaming_utils.sh | tee -a /var/log/build.log && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*; \
+    fi
 
 # Copy overrides and new files into a final layer for fast rebuilds. Uncomment below
 COPY --chown=0:1111 ./COPY_ROOT_99/ /
