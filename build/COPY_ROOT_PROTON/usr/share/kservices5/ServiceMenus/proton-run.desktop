@@ -1,0 +1,26 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=application/x-wine-extension-msp;application/x-msi;application/x-msdos-program;application/x-msdownload;application/x-exe;application/x-bat;
+Actions=RunWithProton;RunWithProtonTerminal;RunWithWine;ConfigureWine;
+X-KDE-Priority=TopLevel
+
+[Desktop Action RunWithProton]
+Name=Run with Proton GE
+Icon=wine
+Exec=proton-run %f
+
+[Desktop Action RunWithProtonTerminal]
+Name=Run with Proton GE (Terminal)
+Icon=utilities-terminal
+Exec=konsole -e proton-run %f
+
+[Desktop Action RunWithWine]
+Name=Run with System Wine
+Icon=wine
+Exec=wine %f
+
+[Desktop Action ConfigureWine]
+Name=Configure Wine Prefix
+Icon=wine-winecfg
+Exec=winecfg

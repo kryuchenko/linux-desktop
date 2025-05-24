@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Wrapper script for running Windows executables with Proton GE
+# Integrates GameMode and MangoHud for optimal performance
+
+# Source Proton environment if available
+[[ -f /opt/ai-dock/etc/proton.env ]] && source /opt/ai-dock/etc/proton.env
+
+# Get the executable path
+EXE_PATH="$1"
+
+# Check if file was provided
+if [ -z "$EXE_PATH" ]; then
+    echo "Usage: proton-run <executable.exe> [arguments]"
+    exit 1
+fi
+
+# Setup environment
+export STEAM_COMPAT_CLIENT_INSTALL_PATH="${STEAM_COMPAT_CLIENT_INSTALL_PATH:-/opt/steam}"
+export STEAM_COMPAT_DATA_PATH="${STEAM_COMPAT_DATA_PATH:-${WORKSPACE}/.proton}"
+
+# Enable MangoHud by default
+export MANGOHUD=1
+
+# Run with GameMode and MangoHud enabled
+exec gamemoderun mangohud /opt/proton-ge/current/proton run "$@"

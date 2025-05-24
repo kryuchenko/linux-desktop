@@ -11,13 +11,13 @@ function install_proton_base() {
     dpkg --add-architecture i386
     apt-get update
     
-    # Add Wine repository
+    # Add Wine repository (using modern method for Ubuntu 22.04)
     wget -nc https://dl.winehq.org/wine-builds/winehq.key -O /tmp/winehq.key
-    apt-key add /tmp/winehq.key
+    install -Dm644 /tmp/winehq.key /usr/share/keyrings/winehq.gpg
     rm -f /tmp/winehq.key
     
     # Add Wine repository for Ubuntu 22.04 (jammy)
-    add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ jammy main'
+    echo "deb [signed-by=/usr/share/keyrings/winehq.gpg] https://dl.winehq.org/wine-builds/ubuntu/ jammy main" > /etc/apt/sources.list.d/winehq.list
     apt-get update
     
     # Install Wine staging (includes both 32 and 64-bit)

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="application/x-wine-extension-msp">
+        <comment>Windows Installer patch</comment>
+        <glob pattern="*.msp"/>
+    </mime-type>
+    
+    <mime-type type="application/x-msi">
+        <comment>Windows Installer package</comment>
+        <magic priority="50">
+            <match type="string" value="\320\317\021\340\241\261\032\341" offset="0"/>
+        </magic>
+        <glob pattern="*.msi"/>
+    </mime-type>
+    
+    <mime-type type="application/x-msdos-program">
+        <comment>Windows executable</comment>
+        <magic priority="50">
+            <match type="string" value="MZ" offset="0"/>
+        </magic>
+        <glob pattern="*.exe"/>
+        <glob pattern="*.com"/>
+    </mime-type>
+    
+    <mime-type type="application/x-msdownload">
+        <comment>Windows library</comment>
+        <magic priority="50">
+            <match type="string" value="MZ" offset="0"/>
+        </magic>
+        <glob pattern="*.dll"/>
+        <glob pattern="*.ocx"/>
+    </mime-type>
+    
+    <mime-type type="application/x-bat">
+        <comment>Windows batch file</comment>
+        <glob pattern="*.bat"/>
+        <glob pattern="*.cmd"/>
+    </mime-type>
+</mime-info>

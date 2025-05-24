@@ -83,6 +83,11 @@ gpu_device=0
 amd_performance_level=high
 EOF
     
+    # Create symlink for gamemoderun
+    if [ -f /usr/games/gamemoderun ]; then
+        ln -sf /usr/games/gamemoderun /usr/local/bin/gamemoderun
+    fi
+    
     echo "Gaming utilities installed successfully"
 }
 

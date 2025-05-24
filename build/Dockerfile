@@ -76,6 +76,7 @@ ENV ENABLE_PROTON_GE=${ENABLE_PROTON_GE}
 ENV PROTON_VERSION=GE-Proton10-3
 ENV ENABLE_GAMEMODE=false
 ENV ENABLE_MANGOHUD=true
+ENV ENABLE_STEAM=false
 
 # Copy early so we can use scripts in the build - Changes to these files will invalidate the cache and cause a rebuild.
 COPY --chown=0:1111 ./COPY_ROOT_0/ /
@@ -96,6 +97,8 @@ RUN if [ "${ENABLE_PROTON_GE}" = "true" ]; then \
     /opt/ai-dock/bin/build/install_proton_ge.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_python_deps.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_gaming_utils.sh | tee -a /var/log/build.log && \
+    /opt/ai-dock/bin/build/install_steam.sh | tee -a /var/log/build.log && \
+    /opt/ai-dock/bin/build/update-mime-database.sh | tee -a /var/log/build.log && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*; \
     fi

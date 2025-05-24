@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Proton GE
+GenericName=Windows Compatibility Layer
+Comment=Run Windows applications with Proton GE
+Exec=proton-run %f
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=System;Emulator;
+Icon=wine
+NoDisplay=true
+MimeType=application/x-wine-extension-msp;application/x-msi;application/x-msdos-program;application/x-msdownload;application/x-exe;application/x-bat;
