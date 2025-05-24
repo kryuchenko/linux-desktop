@@ -63,10 +63,10 @@ function start() {
     sudo cp -f /usr/share/kasmvnc/kasmvnc_defaults.yaml.template \
         /usr/share/kasmvnc/kasmvnc_defaults.yaml
     
-    mkdir -p /home/${USER_NAME}/.vnc
-    touch /home/${USER_NAME}/.vnc/.de-was-selected
+    mkdir -p /root/.vnc
+    touch /root/.vnc/.de-was-selected
     
-    printf "%s\n%s\n" "$USER_PASSWORD" "$USER_PASSWORD" | vncpasswd -u $USER_NAME -w "/home/${USER_NAME}/.kasmpasswd"
+    printf "%s\n%s\n" "$USER_PASSWORD" "$USER_PASSWORD" | vncpasswd -u root -w "/root/.kasmpasswd"
     
     echo "" > "$HOME/.vnc/kasmvnc.yaml"
     yq -i "
