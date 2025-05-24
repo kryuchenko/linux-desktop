@@ -100,6 +100,11 @@ gpu_device = 0
 amd_performance_level = high
 nv_powermizer_mode = 1
 EOF
+
+# Create symlink for gamemoderun if it's in /usr/games
+if [ -f /usr/games/gamemoderun ]; then
+    ln -sf /usr/games/gamemoderun /usr/local/bin/gamemoderun
+fi
 # Create wrapper for Protontricks to work with our Proton installation
 cat > /opt/ai-dock/bin/protontricks <<'EOF'
 #!/bin/bash
@@ -127,7 +132,13 @@ EXE_NAME=$(basename "$EXE_PATH")
 
 # Set up Proton environment
 export STEAM_COMPAT_CLIENT_INSTALL_PATH="/opt/proton-ge/current"
-export STEAM_COMPAT_DATA_PATH="$HOME/.proton-ge-prefixes/$(echo "$EXE_PATH" | md5sum | cut -d' ' -f1)"
+# Ensure we use the correct home directory for the current user
+if [ "$USER" = "root" ]; then
+    PROTON_PREFIX_DIR="/root/.proton-ge-prefixes"
+else
+    PROTON_PREFIX_DIR="${HOME:-/home/$USER}/.proton-ge-prefixes"
+fi
+export STEAM_COMPAT_DATA_PATH="$PROTON_PREFIX_DIR/$(echo "$EXE_PATH" | md5sum | cut -d' ' -f1)"
 export PROTON_USE_WINED3D=0
 export PROTON_NO_ESYNC=0
 export PROTON_NO_FSYNC=0
@@ -139,7 +150,15 @@ mkdir -p "$STEAM_COMPAT_DATA_PATH"
 cd "$EXE_DIR"
 
 # Run with Proton and GameMode for better performance
-exec gamemoderun /opt/proton-ge/current/proton run "$EXE_NAME" "${@:2}"
+# Check if gamemoderun is available in PATH, otherwise use direct path
+if command -v gamemoderun >/dev/null 2>&1; then
+    exec gamemoderun /opt/proton-ge/current/proton run "$EXE_NAME" "${@:2}"
+elif [ -x /usr/games/gamemoderun ]; then
+    exec /usr/games/gamemoderun /opt/proton-ge/current/proton run "$EXE_NAME" "${@:2}"
+else
+    echo "Warning: gamemoderun not found, running without GameMode optimization"
+    exec /opt/proton-ge/current/proton run "$EXE_NAME" "${@:2}"
+fi
 EOF
 chmod +x /opt/ai-dock/bin/proton-run
 
