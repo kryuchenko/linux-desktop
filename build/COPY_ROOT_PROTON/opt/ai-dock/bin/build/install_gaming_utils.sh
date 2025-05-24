@@ -19,9 +19,14 @@ function install_gaming_utils() {
         libgamemodeauto0
     
     # Install MangoHud for performance monitoring
+    # MangoHud needs to be built from source or installed from PPA
+    # Add the official MangoHud PPA
+    add-apt-repository -y ppa:flexiondotorg/mangohud
+    apt-get update
+    
+    # Install MangoHud (only 64-bit version is available)
     apt-get install -y --no-install-recommends \
-        mangohud \
-        mangohud:i386
+        mangohud
     
     # Install additional utilities
     apt-get install -y --no-install-recommends \
