@@ -361,6 +361,18 @@ StartupNotify=true
 EOF
 chmod +x /home/user/Desktop/directx-debugger.desktop
 
+# Mark desktop files as trusted for KDE Plasma 5
+# This prevents "for security reasons" error when clicking executables
+gio set /home/user/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
+gio set /home/user/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
+
+# Create KDE config to allow desktop executables
+mkdir -p /home/user/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
+cat > /home/user/.config/kdesktoprc <<'EOF'
+[Desktop Settings]
+AllowDesktopExecutables=true
+EOF
+
 # Ownership will be fixed by fix-permissions.sh later
 
 fix-permissions.sh -o container
