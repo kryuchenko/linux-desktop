@@ -12,13 +12,14 @@ env:
 jobs:
   cpu-base:
     runs-on: ubuntu-latest
+    if: false  # Disabled - only NVIDIA with Proton is built
     strategy:
       fail-fast: false
       matrix:
         build:
           # CPU builds commented - only NVIDIA with Proton is built
           #- {latest: "false", selkies: "1.6.2", proton: "false"}
-          #- {latest: "false", selkies: "1.6.2", proton: "true"}
+          - {latest: "false", selkies: "1.6.2", proton: "true"}
     steps:
       -
         name: Free Space
@@ -185,6 +186,7 @@ jobs:
 
   amd-base:
     runs-on: ubuntu-latest
+    if: false  # Disabled - only NVIDIA with Proton is built
     strategy:
       fail-fast: false
       matrix:
@@ -192,7 +194,7 @@ jobs:
           # AMD builds commented - only NVIDIA with Proton is built
           #- {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "false"}
           # ROCm with Proton commented due to size constraints
-          #- {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "true"}
+          - {latest: "false", selkies: "1.6.2", rocm: "6.0-runtime", proton: "true"}
     steps:
       -
         name: Free Space
