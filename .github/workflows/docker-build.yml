@@ -46,8 +46,8 @@ jobs:
         name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -59,7 +59,7 @@ jobs:
         name: Set tags
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
-          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cpu$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
+          img_path_dhub="${{ secrets.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cpu$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
           
           if [[ -z ${{ matrix.build.selkies }} || ${{ matrix.build.selkies }} == "latest"  ]]; then
               SELKIES_VERSION="$(curl -fsSL "https://api.github.com/repos/selkies-project/selkies-gstreamer/releases/latest" | jq -r '.tag_name' | sed 's/[^0-9\.\-]*//g')"
@@ -133,8 +133,8 @@ jobs:
         name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -146,7 +146,7 @@ jobs:
         name: Set tags
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
-          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cuda$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
+          img_path_dhub="${{ secrets.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-cuda$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
           
           if [[ -z ${{ matrix.build.selkies }} || ${{ matrix.build.selkies }} == "latest"  ]]; then
               SELKIES_VERSION="$(curl -fsSL "https://api.github.com/repos/selkies-project/selkies-gstreamer/releases/latest" | jq -r '.tag_name' | sed 's/[^0-9\.\-]*//g')"
@@ -218,8 +218,8 @@ jobs:
         name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -231,7 +231,7 @@ jobs:
         name: Set tags
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
-          img_path_dhub="${{ vars.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-rocm$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
+          img_path_dhub="${{ secrets.DOCKERHUB_USER }}/${{ env.REPO_NAME }}-rocm$([[ ${{ matrix.build.proton }} == "true" ]] && echo "-proton" || echo "")"
           
           if [[ -z ${{ matrix.build.selkies }} || ${{ matrix.build.selkies }} == "latest"  ]]; then
               SELKIES_VERSION="$(curl -fsSL "https://api.github.com/repos/selkies-project/selkies-gstreamer/releases/latest" | jq -r '.tag_name' | sed 's/[^0-9\.\-]*//g')"
