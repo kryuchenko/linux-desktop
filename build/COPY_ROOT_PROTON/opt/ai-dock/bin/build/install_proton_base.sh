@@ -9,7 +9,21 @@ function install_proton_base() {
     
     # Enable 32-bit architecture
     dpkg --add-architecture i386
-    apt-get update
+    
+    # Retry apt-get update to handle mirror sync issues
+    echo "Running apt-get update with retry logic..."
+    for i in $(seq 1 5); do
+        echo "▶ apt-get update (attempt $i/5)"
+        if apt-get update; then 
+            break
+        fi
+        echo "⚠️  apt-get update failed, retrying in 30 seconds..."
+        sleep 30
+        if [ "$i" = 5 ]; then 
+            echo "❌ apt-get update failed after 5 attempts"
+            exit 1
+        fi
+    done
     
     # Add Wine repository (official method for Ubuntu 22.04)
     # Create keyrings directory if it doesn't exist
@@ -20,7 +34,21 @@ function install_proton_base() {
     
     # Add the WineHQ repository sources file
     wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
-    apt-get update
+    
+    # Retry apt-get update after adding Wine repository
+    echo "Updating package lists after adding Wine repository..."
+    for i in $(seq 1 5); do
+        echo "▶ apt-get update (attempt $i/5)"
+        if apt-get update; then 
+            break
+        fi
+        echo "⚠️  apt-get update failed, retrying in 30 seconds..."
+        sleep 30
+        if [ "$i" = 5 ]; then 
+            echo "❌ apt-get update failed after 5 attempts"
+            exit 1
+        fi
+    done
     
     # Install Wine staging (includes both 32 and 64-bit)
     apt-get install -y --no-install-recommends \
