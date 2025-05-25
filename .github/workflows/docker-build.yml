@@ -10,7 +10,7 @@ env:
   BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
 jobs:
-  cpu-base:
+  # cpu-base:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -99,7 +99,7 @@ jobs:
       matrix:
         build:
           - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-runtime"}
-          - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-devel"}
+          # - {latest: "false", selkies: "1.6.2", cuda: "12.1.1-cudnn8-devel"}
     steps:
       -
         name: Free Space
@@ -174,7 +174,7 @@ jobs:
           provenance: false
           tags: ${{ env.TAGS }}
 
-  amd-base:
+  # amd-base:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
