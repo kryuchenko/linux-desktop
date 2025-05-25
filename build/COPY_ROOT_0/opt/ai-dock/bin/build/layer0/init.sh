@@ -17,4 +17,7 @@ else
     exit 1
 fi
 
+# Fix websockets compatibility for selkies-gstreamer
+source /opt/ai-dock/bin/build/layer0/fix-selkies-websockets.sh
+
 source /opt/ai-dock/bin/build/layer0/clean.sh
