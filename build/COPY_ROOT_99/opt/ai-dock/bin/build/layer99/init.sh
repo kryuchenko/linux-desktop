@@ -373,6 +373,12 @@ cat > /home/user/.config/kdesktoprc <<'EOF'
 AllowDesktopExecutables=true
 EOF
 
+# Fix ownership for user directories before fix-permissions.sh
+chown -R user:ai-dock /home/user/.config
+chown -R user:ai-dock /home/user/.local  
+chown -R user:ai-dock /home/user/.kde
+chown -R user:ai-dock /home/user/Desktop
+
 # Ownership will be fixed by fix-permissions.sh later
 
 fix-permissions.sh -o container
