@@ -381,6 +381,14 @@ chown -R user:ai-dock /home/user/Desktop
 
 # Ownership will be fixed by fix-permissions.sh later
 
+# Set NVIDIA environment variables for GPU acceleration
+cat > /etc/profile.d/nvidia-gpu.sh << 'EOF'
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export __NV_PRIME_RENDER_OFFLOAD=1
+export __VK_LAYER_NV_optimus=NVIDIA_only
+EOF
+chmod +x /etc/profile.d/nvidia-gpu.sh
+
 fix-permissions.sh -o container
 
 # Create entrypoint.sh symlink for vast.ai compatibility

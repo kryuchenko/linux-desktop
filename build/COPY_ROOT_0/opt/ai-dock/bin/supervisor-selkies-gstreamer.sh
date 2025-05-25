@@ -21,6 +21,12 @@ function start() {
     source /opt/ai-dock/bin/venv-set.sh serviceportal
     source /opt/ai-dock/bin/venv-set.sh selkies
     
+    # Set performance optimizations for Selkies
+    export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast}"
+    export GST_VIDEO_BITRATE="${GST_VIDEO_BITRATE:-8000}"
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    
     if [[ ${SERVERLESS,,} = "true" ]]; then
         printf "Refusing to start $SERVICE_NAME in serverless mode\n"
         exec sleep 10
