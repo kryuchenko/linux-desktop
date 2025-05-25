@@ -13,17 +13,19 @@ on:
 jobs:
   delete-untagged:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       -
         run: |
           echo "PACKAGE_NAME=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
-          echo "OWNER=orgs/${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
+          echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
       -
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const response = await github.request("GET /${{ env.OWNER }}/packages/container/${{ github.event.repository.name  }}/versions",
+            const response = await github.request("GET /users/${{ env.OWNER }}/packages/container/${{ github.event.repository.name  }}/versions",
               { per_page: ${{ env.PER_PAGE }}
             });
 
@@ -39,7 +41,7 @@ jobs:
             for (let page = pages; page >= 1; page--) {
               console.log("Processing page " + page)
               
-              const response = await github.request("GET /${{ env.OWNER }}/packages/container/${{ github.event.repository.name  }}/versions",
+              const response = await github.request("GET /users/${{ env.OWNER }}/packages/container/${{ github.event.repository.name  }}/versions",
               { 
                   per_page: ${{ env.PER_PAGE }},
                   page: page
@@ -48,7 +50,7 @@ jobs:
               for (version of response.data) {
                 if (version.metadata.container.tags.length == 0) {
                     console.log("delete " + version.id)
-                    const deleteResponse = await github.request("DELETE /${{ env.OWNER }}/packages/container/${{ github.event.repository.name }}/versions/" + version.id, { });
+                    const deleteResponse = await github.request("DELETE /users/${{ env.OWNER }}/packages/container/${{ github.event.repository.name }}/versions/" + version.id, { });
                         console.log("status " + deleteResponse.status)
                 }
               }
