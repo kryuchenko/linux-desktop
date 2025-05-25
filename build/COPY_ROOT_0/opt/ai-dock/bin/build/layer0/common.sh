@@ -11,6 +11,7 @@ build_common_main() {
     build_common_install_kde
     build_common_install_packages
     build_common_install_selkies
+    build_common_check_nvenc_support
     build_common_install_kasmvnc
     build_common_install_coturn
 }
@@ -46,6 +47,8 @@ function build_common_install_xorg() {
         fonts-ubuntu \
         gstreamer1.0-plugins-bad \
         libgstreamer-plugins-bad1.0-dev \
+        gstreamer1.0-plugins-ugly \
+        gstreamer1.0-libav \
         im-config \
         lame \
         libavcodec-extra \
@@ -348,6 +351,34 @@ function build_common_install_packages() {
         vlc-plugin-visualization
 
         update-alternatives --set x-www-browser /usr/bin/firefox
+}
+
+function build_common_check_nvenc_support() {
+    printf "Checking NVENC support...\n"
+    
+    # Only check/install for NVIDIA images
+    if [[ "${IMAGE_BASE,,}" == *"cuda"* ]] || nvidia-smi &>/dev/null; then
+        # Create script to check NVENC at runtime
+        cat > /opt/ai-dock/bin/check-nvenc-runtime.sh << 'EOF'
+#!/bin/bash
+# This runs at container startup to verify NVENC availability
+
+if command -v gst-inspect-1.0 &>/dev/null; then
+    if gst-inspect-1.0 nvh264enc &>/dev/null; then
+        echo "✓ NVENC hardware encoder is available"
+        export SELKIES_ENCODER="${SELKIES_ENCODER:-nvh264enc bitrate=8000 preset=low-latency-hq rc-mode=cbr-hq}"
+    else
+        echo "✗ NVENC not available, using x264enc"
+        export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast}"
+    fi
+else
+    echo "⚠ gst-inspect-1.0 not found"
+fi
+EOF
+        chmod +x /opt/ai-dock/bin/check-nvenc-runtime.sh
+        
+        printf "NVENC support check script created\n"
+    fi
 }
 
 function build_common_install_selkies() {
