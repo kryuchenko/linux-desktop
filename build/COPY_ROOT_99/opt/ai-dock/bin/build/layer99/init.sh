@@ -3,13 +3,19 @@ set -eo pipefail
 umask 002
 
 # Ensure user and group exist for build operations
+echo "Checking for user account..."
 if ! id -u user >/dev/null 2>&1; then
-    echo "Creating user and ai-dock group for build..."
-    groupadd -g 1111 ai-dock || true
-    useradd -m -u 1000 -g ai-dock -s /bin/bash user || true
-    mkdir -p /home/user
-    chown -R user:ai-dock /home/user
+    echo "User 'user' not found, creating..."
+    groupadd -g 1111 ai-dock || echo "Group ai-dock may already exist"
+    useradd -m -u 1000 -g ai-dock -s /bin/bash user || echo "User creation may have failed"
+    echo "User creation result: $(id user 2>&1)"
+else
+    echo "User 'user' already exists: $(id user)"
 fi
+
+# Ensure directories exist
+mkdir -p /home/user /home/user/.config /home/user/.local /home/user/Desktop
+echo "Directory structure created"
 
 # Override this file to add extras to your build
 # Wine, Winetricks, Lutris, this process must be consistent with https://wiki.winehq.org/Ubuntu
@@ -352,13 +358,20 @@ apt-get clean -y
 
 # Download DirectX Args Debugger to Desktop for testing
 echo "Setting up DirectX test application..."
-mkdir -p /home/user/Desktop
-cd /home/user/Desktop
-wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe
-chmod +x directx-args-debugger.exe
+if id -u user >/dev/null 2>&1; then
+    mkdir -p /home/user/Desktop
+    cd /home/user/Desktop
+    wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe || echo "Failed to download directx-args-debugger.exe"
+    chmod +x directx-args-debugger.exe || true
+else
+    echo "User not found, downloading to /tmp instead"
+    cd /tmp
+    wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe || echo "Failed to download"
+fi
 
 # Create desktop launcher
-cat > /home/user/Desktop/directx-debugger.desktop <<'EOF'
+if id -u user >/dev/null 2>&1 && [ -d /home/user/Desktop ]; then
+    cat > /home/user/Desktop/directx-debugger.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
 Name=DirectX Args Debugger
@@ -369,25 +382,32 @@ Terminal=true
 Categories=Game;
 StartupNotify=true
 EOF
-chmod +x /home/user/Desktop/directx-debugger.desktop
+    chmod +x /home/user/Desktop/directx-debugger.desktop
 
-# Mark desktop files as trusted for KDE Plasma 5
-# This prevents "for security reasons" error when clicking executables
-gio set /home/user/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
-gio set /home/user/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
+    # Mark desktop files as trusted for KDE Plasma 5
+    # This prevents "for security reasons" error when clicking executables
+    gio set /home/user/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
+    gio set /home/user/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
 
-# Create KDE config to allow desktop executables
-mkdir -p /home/user/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
-cat > /home/user/.config/kdesktoprc <<'EOF'
+    # Create KDE config to allow desktop executables
+    mkdir -p /home/user/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
+    cat > /home/user/.config/kdesktoprc <<'EOF'
 [Desktop Settings]
 AllowDesktopExecutables=true
 EOF
+else
+    echo "Skipping DirectX debugger desktop setup - user directory not available"
+fi
 
 # Fix ownership for user directories before fix-permissions.sh
-chown -R user:ai-dock /home/user/.config || true
-chown -R user:ai-dock /home/user/.local || true
-chown -R user:ai-dock /home/user/.kde || true
-chown -R user:ai-dock /home/user/Desktop || true
+if id -u user >/dev/null 2>&1; then
+    chown -R user:ai-dock /home/user/.config || true
+    chown -R user:ai-dock /home/user/.local || true
+    chown -R user:ai-dock /home/user/.kde || true
+    chown -R user:ai-dock /home/user/Desktop || true
+else
+    echo "WARNING: User 'user' not found, skipping ownership fixes"
+fi
 
 # Ownership will be fixed by fix-permissions.sh later
 
