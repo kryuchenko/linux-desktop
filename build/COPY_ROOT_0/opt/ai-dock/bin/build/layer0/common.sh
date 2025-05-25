@@ -354,30 +354,26 @@ function build_common_install_packages() {
 }
 
 function build_common_check_nvenc_support() {
-    printf "Checking NVENC support...\n"
+    printf "Setting up NVENC support...\n"
     
-    # Only check/install for NVIDIA images
-    if [[ "${IMAGE_BASE,,}" == *"cuda"* ]] || nvidia-smi &>/dev/null; then
-        # Create script to check NVENC at runtime
-        cat > /opt/ai-dock/bin/check-nvenc-runtime.sh << 'EOF'
-#!/bin/bash
-# This runs at container startup to verify NVENC availability
-
-if command -v gst-inspect-1.0 &>/dev/null; then
-    if gst-inspect-1.0 nvh264enc &>/dev/null; then
-        echo "✓ NVENC hardware encoder is available"
-        export SELKIES_ENCODER="${SELKIES_ENCODER:-nvh264enc bitrate=8000 preset=low-latency-hq rc-mode=cbr-hq}"
-    else
-        echo "✗ NVENC not available, using x264enc"
-        export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast}"
-    fi
-else
-    echo "⚠ gst-inspect-1.0 not found"
-fi
-EOF
-        chmod +x /opt/ai-dock/bin/check-nvenc-runtime.sh
+    # Only for NVIDIA images
+    if [[ "${IMAGE_BASE,,}" == *"cuda"* ]]; then
+        # Install NVIDIA gstreamer plugins
+        $APT_INSTALL gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly || true
         
-        printf "NVENC support check script created\n"
+        # Try to find NVENC plugin
+        if ! gst-inspect-1.0 nvh264enc &>/dev/null 2>&1; then
+            printf "NVENC plugin not found in standard packages\n"
+            # Plugin might be loaded at runtime when NVIDIA drivers are available
+        else
+            printf "✓ NVENC plugin found\n"
+        fi
+        
+        # Ensure GST plugin paths are set
+        echo 'export GST_PLUGIN_PATH="/usr/lib/x86_64-linux-gnu/gstreamer-1.0:${GST_PLUGIN_PATH}"' >> /etc/profile.d/gstreamer.sh
+        chmod +x /etc/profile.d/gstreamer.sh
+        
+        printf "NVENC support configured for runtime detection\n"
     fi
 }
 

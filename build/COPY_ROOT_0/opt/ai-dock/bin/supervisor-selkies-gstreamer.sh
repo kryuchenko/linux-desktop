@@ -22,17 +22,38 @@ function start() {
     source /opt/ai-dock/bin/venv-set.sh selkies
     
     # Set performance optimizations for Selkies
-    # Check if NVENC is available
-    if gst-inspect-1.0 nvh264enc &>/dev/null; then
-        echo "NVENC hardware encoder detected, using nvh264enc"
-        export SELKIES_ENCODER="${SELKIES_ENCODER:-nvh264enc bitrate=8000 preset=low-latency-hq rc-mode=cbr-hq}"
-    else
-        echo "NVENC not available, using optimized x264enc"
-        export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast}"
-    fi
-    export GST_VIDEO_BITRATE="${GST_VIDEO_BITRATE:-8000}"
+    # Force NVIDIA GPU usage
     export __GLX_VENDOR_LIBRARY_NAME=nvidia
     export __NV_PRIME_RENDER_OFFLOAD=1
+    export __VK_LAYER_NV_optimus=NVIDIA_only
+    
+    # Auto-detect best encoder
+    if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
+        # NVIDIA GPU detected
+        if gst-inspect-1.0 nvh264enc &>/dev/null 2>&1; then
+            echo "[Selkies] ✓ Using NVIDIA NVENC hardware encoder"
+            export SELKIES_ENCODER="${SELKIES_ENCODER:-nvh264enc bitrate=8000 preset=low-latency-hq rc-mode=cbr-hq gop-size=60 zerolatency=true}"
+        else
+            echo "[Selkies] ⚠ NVIDIA GPU found but NVENC not available, trying to load..."
+            # Try to load NVIDIA gstreamer plugins
+            export GST_PLUGIN_PATH="/usr/lib/x86_64-linux-gnu/gstreamer-1.0:${GST_PLUGIN_PATH}"
+            gst-inspect-1.0 --gst-plugin-path=/usr/lib/x86_64-linux-gnu/gstreamer-1.0 nvcodec &>/dev/null 2>&1
+            
+            if gst-inspect-1.0 nvh264enc &>/dev/null 2>&1; then
+                echo "[Selkies] ✓ NVENC loaded successfully"
+                export SELKIES_ENCODER="${SELKIES_ENCODER:-nvh264enc bitrate=8000 preset=low-latency-hq rc-mode=cbr-hq gop-size=60 zerolatency=true}"
+            else
+                echo "[Selkies] ✗ NVENC still not available, using optimized x264"
+                export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast bitrate=8000}"
+            fi
+        fi
+    else
+        echo "[Selkies] No NVIDIA GPU detected, using x264 encoder"
+        export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast bitrate=8000}"
+    fi
+    
+    export GST_VIDEO_BITRATE="${GST_VIDEO_BITRATE:-8000}"
+    echo "[Selkies] Encoder: $SELKIES_ENCODER"
     
     if [[ ${SERVERLESS,,} = "true" ]]; then
         printf "Refusing to start $SERVICE_NAME in serverless mode\n"
