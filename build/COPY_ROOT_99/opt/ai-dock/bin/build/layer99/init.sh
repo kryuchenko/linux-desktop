@@ -1,6 +1,16 @@
 #!/bin/bash
 set -eo pipefail
 umask 002
+
+# Ensure user and group exist for build operations
+if ! id -u user >/dev/null 2>&1; then
+    echo "Creating user and ai-dock group for build..."
+    groupadd -g 1111 ai-dock || true
+    useradd -m -u 1000 -g ai-dock -s /bin/bash user || true
+    mkdir -p /home/user
+    chown -R user:ai-dock /home/user
+fi
+
 # Override this file to add extras to your build
 # Wine, Winetricks, Lutris, this process must be consistent with https://wiki.winehq.org/Ubuntu
 
@@ -342,46 +352,42 @@ apt-get clean -y
 
 # Download DirectX Args Debugger to Desktop for testing
 echo "Setting up DirectX test application..."
-# Use /root during build, will be moved to user home later
-mkdir -p /root/Desktop
-cd /root/Desktop
+mkdir -p /home/user/Desktop
+cd /home/user/Desktop
 wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe
 chmod +x directx-args-debugger.exe
 
 # Create desktop launcher
-cat > /root/Desktop/directx-debugger.desktop <<'EOF'
+cat > /home/user/Desktop/directx-debugger.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
 Name=DirectX Args Debugger
 Comment=Test DirectX arguments with Proton
-Exec=/opt/ai-dock/bin/proton-run /root/Desktop/directx-args-debugger.exe
+Exec=/opt/ai-dock/bin/proton-run /home/user/Desktop/directx-args-debugger.exe
 Icon=wine
 Terminal=true
 Categories=Game;
 StartupNotify=true
 EOF
-chmod +x /root/Desktop/directx-debugger.desktop
+chmod +x /home/user/Desktop/directx-debugger.desktop
 
 # Mark desktop files as trusted for KDE Plasma 5
 # This prevents "for security reasons" error when clicking executables
-gio set /root/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
-gio set /root/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
+gio set /home/user/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
+gio set /home/user/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
 
 # Create KDE config to allow desktop executables
-mkdir -p /root/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
-cat > /root/.config/kdesktoprc <<'EOF'
+mkdir -p /home/user/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
+cat > /home/user/.config/kdesktoprc <<'EOF'
 [Desktop Settings]
 AllowDesktopExecutables=true
 EOF
 
 # Fix ownership for user directories before fix-permissions.sh
-# Only run if user exists (not during build)
-if id -u user >/dev/null 2>&1; then
-    chown -R user:ai-dock /home/user/.config || true
-    chown -R user:ai-dock /home/user/.local || true
-    chown -R user:ai-dock /home/user/.kde || true
-    chown -R user:ai-dock /home/user/Desktop || true
-fi
+chown -R user:ai-dock /home/user/.config || true
+chown -R user:ai-dock /home/user/.local || true
+chown -R user:ai-dock /home/user/.kde || true
+chown -R user:ai-dock /home/user/Desktop || true
 
 # Ownership will be fixed by fix-permissions.sh later
 
