@@ -60,7 +60,7 @@ services:
    
     environment:
         # Don't enclose values in quotes
-        - ENABLE_COTURN=${ENABLE_COTURN:-false}
+        - ENABLE_COTURN=${ENABLE_COTURN:-true}
         # External IP
         - COTURN_LISTEN_ADDRESS=${COTURN_LISTEN_ADDRESS:-127.0.0.1}
         - COTURN_PORT_HOST=${COTURN_PORT_HOST:-3478}
@@ -79,7 +79,7 @@ services:
         - PIPEWIRE_LATENCY=${PIPEWIRE_LATENCY:-32/48000}
         - PULSE_LATENCY_MSEC=${PULSE_LATENCY_MSEC:-60}
         - DIRECT_ADDRESS=${DIRECT_ADDRESS:-127.0.0.1}
-        - DIRECT_ADDRESS_GET_WAN=${DIRECT_ADDRESS_GET_WAN:-false}
+        - DIRECT_ADDRESS_GET_WAN=${DIRECT_ADDRESS_GET_WAN:-true}
         - WORKSPACE=${WORKSPACE:-/workspace}
         - WORKSPACE_SYNC=${WORKSPACE_SYNC:-true}
         - CF_TUNNEL_TOKEN=${CF_TUNNEL_TOKEN:-}
