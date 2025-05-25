@@ -10,7 +10,8 @@ env:
   BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
 jobs:
-  # cpu-base:
+  cpu-base:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -174,7 +175,8 @@ jobs:
           provenance: false
           tags: ${{ env.TAGS }}
 
-  # amd-base:
+  amd-base:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
