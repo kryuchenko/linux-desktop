@@ -337,40 +337,6 @@ cp -f /opt/ai-dock/share/google-chrome/bin/google-chrome /opt/google/chrome/goog
 
 apt-get clean -y
 
-# Download DirectX Args Debugger to Desktop for testing
-echo "Setting up DirectX test application..."
-mkdir -p /root/Desktop
-cd /root/Desktop
-wget -q https://github.com/kryuchenko/directx-args-debugger/raw/main/build/directx-args-debugger.exe
-chmod +x directx-args-debugger.exe
-
-# Create desktop launcher
-cat > /root/Desktop/directx-debugger.desktop <<'EOF'
-[Desktop Entry]
-Type=Application
-Name=DirectX Args Debugger
-Comment=Test DirectX arguments with Proton
-Exec=/opt/ai-dock/bin/proton-run /root/Desktop/directx-args-debugger.exe
-Icon=wine
-Terminal=true
-Categories=Game;
-StartupNotify=true
-EOF
-chmod +x /root/Desktop/directx-debugger.desktop
-
-# Mark desktop files as trusted for KDE Plasma 5
-# This prevents "for security reasons" error when clicking executables
-gio set /root/Desktop/directx-debugger.desktop metadata::trusted true 2>/dev/null || true
-gio set /root/Desktop/directx-args-debugger.exe metadata::trusted true 2>/dev/null || true
-
-# Create KDE config to allow desktop executables
-mkdir -p /root/.config/plasma-org.kde.plasma.desktop-appletsrc.d/
-cat > /root/.config/kdesktoprc <<'EOF'
-[Desktop Settings]
-AllowDesktopExecutables=true
-EOF
-
-# Ownership will be fixed by fix-permissions.sh later
 
 fix-permissions.sh -o container
 
