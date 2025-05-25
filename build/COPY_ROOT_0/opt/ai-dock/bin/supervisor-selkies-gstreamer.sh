@@ -22,7 +22,14 @@ function start() {
     source /opt/ai-dock/bin/venv-set.sh selkies
     
     # Set performance optimizations for Selkies
-    export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast}"
+    # Check if NVENC is available
+    if gst-inspect-1.0 nvh264enc &>/dev/null; then
+        echo "NVENC hardware encoder detected, using nvh264enc"
+        export SELKIES_ENCODER="${SELKIES_ENCODER:-nvh264enc bitrate=8000 preset=low-latency-hq rc-mode=cbr-hq}"
+    else
+        echo "NVENC not available, using optimized x264enc"
+        export SELKIES_ENCODER="${SELKIES_ENCODER:-x264enc tune=zerolatency speed-preset=ultrafast}"
+    fi
     export GST_VIDEO_BITRATE="${GST_VIDEO_BITRATE:-8000}"
     export __GLX_VENDOR_LIBRARY_NAME=nvidia
     export __NV_PRIME_RENDER_OFFLOAD=1
