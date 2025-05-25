@@ -28,12 +28,38 @@ function install_dxvk_cache() {
     # Download VKD3D-Proton for DirectX 12
     echo "Downloading VKD3D-Proton..."
     VKD3D_VERSION="2.13"
-    wget -q -O /tmp/vkd3d.tar.xz \
-        "https://github.com/HansKristian-Work/vkd3d-proton/releases/download/v${VKD3D_VERSION}/vkd3d-proton-${VKD3D_VERSION}.tar.xz" || true
     
-    if [ -f /tmp/vkd3d.tar.xz ]; then
-        tar -xJf /tmp/vkd3d.tar.xz -C /opt/dxvk-cache/
-        rm /tmp/vkd3d.tar.xz
+    # Try .tar.zst first (newer releases), then fall back to .tar.xz
+    echo "Trying to download VKD3D-Proton v${VKD3D_VERSION}..."
+    if wget -q -O /tmp/vkd3d.tar.zst \
+        "https://github.com/HansKristian-Work/vkd3d-proton/releases/download/v${VKD3D_VERSION}/vkd3d-proton-${VKD3D_VERSION}.tar.zst" 2>/dev/null; then
+        archive="/tmp/vkd3d.tar.zst"
+        echo "Downloaded .tar.zst format"
+    elif wget -q -O /tmp/vkd3d.tar.xz \
+        "https://github.com/HansKristian-Work/vkd3d-proton/releases/download/v${VKD3D_VERSION}/vkd3d-proton-${VKD3D_VERSION}.tar.xz" 2>/dev/null; then
+        archive="/tmp/vkd3d.tar.xz"
+        echo "Downloaded .tar.xz format"
+    else
+        echo "Failed to download VKD3D-Proton v${VKD3D_VERSION}"
+        archive=""
+    fi
+    
+    if [ -n "$archive" ] && [ -f "$archive" ]; then
+        case "$archive" in
+            *.tar.zst)
+                echo "Extracting .tar.zst archive..."
+                tar --use-compress-program=unzstd -xf "$archive" -C /opt/dxvk-cache/
+                ;;
+            *.tar.xz)
+                echo "Extracting .tar.xz archive..."
+                tar -xJf "$archive" -C /opt/dxvk-cache/
+                ;;
+            *)
+                echo "Unknown archive format: $archive"
+                exit 1
+                ;;
+        esac
+        rm "$archive"
         
         # Make VKD3D available
         ln -sf "/opt/dxvk-cache/vkd3d-proton-${VKD3D_VERSION}" /opt/dxvk-cache/vkd3d-latest

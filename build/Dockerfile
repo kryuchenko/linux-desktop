@@ -93,6 +93,7 @@ RUN set -eo pipefail && /opt/ai-dock/bin/build/layer0/init.sh | tee /var/log/bui
 COPY --chown=0:1111 ./COPY_ROOT_PROTON/ /
 RUN if [ "${ENABLE_PROTON_GE}" = "true" ]; then \
     set -eo pipefail && \
+    apt-get update && apt-get install -y --no-install-recommends zstd && \
     /opt/ai-dock/bin/build/install_proton_base.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_proton_ge.sh | tee -a /var/log/build.log && \
     /opt/ai-dock/bin/build/install_python_deps.sh | tee -a /var/log/build.log && \
