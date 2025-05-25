@@ -4,6 +4,21 @@
 
 echo "=== Preflight checks and fixes ==="
 
+# Start D-Bus session daemon first
+echo "Starting D-Bus session daemon..."
+if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+    eval "$(dbus-launch --sh-syntax)"
+    export DBUS_SESSION_BUS_ADDRESS
+    export DBUS_SESSION_BUS_PID
+    echo "D-Bus session started: $DBUS_SESSION_BUS_ADDRESS"
+    
+    # Save D-Bus environment for all processes
+    echo "export DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS" >> /etc/profile.d/dbus.sh
+    echo "export DBUS_SESSION_BUS_PID=$DBUS_SESSION_BUS_PID" >> /etc/profile.d/dbus.sh
+else
+    echo "D-Bus session already running"
+fi
+
 # Fix user permissions that might be wrong after container creation
 if id -u user >/dev/null 2>&1; then
     echo "Fixing user directory permissions..."
@@ -46,6 +61,16 @@ if [ -f /root/Desktop/directx-args-debugger.exe ] && [ ! -f /home/user/Desktop/d
     echo "Moving DirectX debugger to user desktop..."
     mv /root/Desktop/directx-* /home/user/Desktop/ 2>/dev/null || true
     chown -R user:ai-dock /home/user/Desktop/
+fi
+
+# Fix GStreamer plugin conflicts
+echo "Checking GStreamer plugins..."
+if [ -d /opt/gstreamer ] && [ -d /usr/lib/x86_64-linux-gnu/gstreamer-1.0 ]; then
+    echo "WARNING: Multiple GStreamer installations detected"
+    # Prefer system GStreamer over custom build
+    export GST_PLUGIN_PATH="/usr/lib/x86_64-linux-gnu/gstreamer-1.0"
+    export GST_PLUGIN_SYSTEM_PATH="/usr/lib/x86_64-linux-gnu/gstreamer-1.0"
+    echo "Set GST_PLUGIN_PATH to system location"
 fi
 
 # Ensure NVIDIA environment variables are set

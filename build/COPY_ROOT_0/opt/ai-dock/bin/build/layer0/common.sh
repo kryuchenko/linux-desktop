@@ -49,6 +49,7 @@ function build_common_install_xorg() {
         libgstreamer-plugins-bad1.0-dev \
         gstreamer1.0-plugins-ugly \
         gstreamer1.0-libav \
+        libwebrtc-audio-processing1 \
         im-config \
         lame \
         libavcodec-extra \
@@ -263,6 +264,8 @@ function build_common_install_kde() {
         kdeconnect \
         kdegraphics-thumbnailers \
         kde-spectacle \
+        plasma-systemmonitor \
+        kontact \
         kdf \
         kdialog \
         kget \

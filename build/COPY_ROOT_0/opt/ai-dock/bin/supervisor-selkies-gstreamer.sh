@@ -55,6 +55,16 @@ function start() {
     export GST_VIDEO_BITRATE="${GST_VIDEO_BITRATE:-8000}"
     echo "[Selkies] Encoder: $SELKIES_ENCODER"
     
+    # Fix WebRTC hostname resolution
+    # Add container hostname to /etc/hosts for .local resolution
+    if ! grep -q "$(hostname).local" /etc/hosts; then
+        echo "127.0.0.1 $(hostname).local $(hostname)" >> /etc/hosts
+    fi
+    
+    # Set STUN servers for better connectivity
+    export SELKIES_TURN_HOST="${SELKIES_TURN_HOST:-stun.l.google.com}"
+    export SELKIES_TURN_PORT="${SELKIES_TURN_PORT:-19302}"
+    
     if [[ ${SERVERLESS,,} = "true" ]]; then
         printf "Refusing to start $SERVICE_NAME in serverless mode\n"
         exec sleep 10

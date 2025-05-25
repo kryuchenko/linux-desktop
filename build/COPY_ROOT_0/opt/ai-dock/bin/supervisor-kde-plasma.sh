@@ -35,15 +35,27 @@ function start() {
     done
     source /opt/ai-dock/etc/environment.sh
     
+    # Ensure D-Bus session is available
+    if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+        eval "$(dbus-launch --sh-syntax)"
+        export DBUS_SESSION_BUS_ADDRESS
+        export DBUS_SESSION_BUS_PID
+    fi
+    
     rm -rf ~/.cache
     
     # Ensure required KDE files and directories exist
     mkdir -p ~/.config ~/.local/share ~/.cache
     touch ~/.config/startplasma-x11rc
+    chmod 644 ~/.config/startplasma-x11rc
     if [ ! -f ~/.config/kdeglobals ]; then
         echo "[General]" > ~/.config/kdeglobals
     fi
+    chmod 644 ~/.config/kdeglobals
     mkdir -p ~/.config/autostart
+    
+    # Fix ownership for current user
+    chown -R $(whoami):$(id -gn) ~/.config ~/.local ~/.cache
   
     # Start KDE
     # Use VirtualGL to run the KDE desktop environment with OpenGL if the GPU is available, otherwise use OpenGL with llvmpipe
@@ -53,13 +65,12 @@ function start() {
     
     if [[ $xmode == "proxy" ]]; then
         export VGL_FPS="${DISPLAY_REFRESH}"
-        /usr/bin/vglrun \
+        exec /usr/bin/vglrun \
             -d "${VGL_DISPLAY:-egl}" \
             +wm \
-            /usr/bin/dbus-launch \
-                /usr/bin/startplasma-x11
+            /usr/bin/startplasma-x11
     else
-        /usr/bin/startplasma-x11
+        exec /usr/bin/startplasma-x11
     fi
 }
 
