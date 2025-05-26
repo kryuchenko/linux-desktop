@@ -68,11 +68,16 @@ services:
         # Auto-generated when empty
         - COTURN_PASSWORD=${COTURN_PASSWORD:-}
         # External IP if coturn
-        - SELKIES_TURN_HOST=${SELKIES_TURN_HOST:-127.0.0.1}
-        - SELKIES_TURN_PORT=${SELKIES_TURN_PORT:-3478}
+        # TURN server configuration for WebRTC
+        - SELKIES_TURN_URI=${SELKIES_TURN_URI:-turn:turn.openrelay.metered.ca:80}
+        - SELKIES_TURN_USERNAME=${SELKIES_TURN_USERNAME:-openrelayproject}
+        - SELKIES_TURN_PASSWORD=${SELKIES_TURN_PASSWORD:-openrelayproject}
+        # Legacy TURN config (kept for compatibility)
+        - SELKIES_TURN_HOST=${SELKIES_TURN_HOST:-turn.openrelay.metered.ca}
+        - SELKIES_TURN_PORT=${SELKIES_TURN_PORT:-80}
         - SELKIES_TURN_PROTOCOL=${SELKIES_TURN_PROTOCOL:-tcp}
-        - SELKIES_TURN_USERNAME=${SELKIES_TURN_USERNAME:-}
-        - SELKIES_TURN_PASSWORD=${SELKIES_TURN_PASSWORD:-}
+        # Disable mDNS candidates to fix WebRTC connection issues
+        - GST_WEBRTC_DISABLE_MDNS=1
         - SELKIES_ENABLE_RESIZE=${SELKIES_ENABLE_RESIZE:-false}
         - SELKIES_ENCODER=${SELKIES_ENCODER:-nvh264enc}
         - SELKIES_ARGS=${SELKIES_ARGS:-}
